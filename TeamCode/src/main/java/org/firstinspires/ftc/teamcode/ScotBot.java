@@ -29,27 +29,43 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 /**
  * Main class representing the scotbot.
  */
-@TeleOp(name="SCOTBOT-DRIVE", group="Pushbot")
+@TeleOp(name = "SCOTBOT-DRIVE", group = "Pushbot")
 public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
 
-    private final static double TICKS_TO_INCHES = 0.00872664625997d, INCHES_TO_RADIANS = 0.032258065d, INTAKE_POWER=0.5;
+    private final static double TICKS_TO_INCHES = 0.00872664625997d, INCHES_TO_RADIANS = 0.032258065d, INTAKE_POWER = 0.5;
 
     private double x, y, rotation;
 
-    private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR;
+    private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR, lift;
     private double posFL, posFR, posBL, posBR;
+
+    private boolean aPrev = false;
+
+    /**
+     * Calculate the inverse sqrt root of a number
+     *
+     * @param x the number to calculate on
+     * @return the result
+     * @see https://stackoverflow.com/questions/11513344/how-to-implement-the-fast-inverse-square-root-in-java
+     */
+    public static double invSqrt(double x) {
+        double xHalf = 0.5d * x;
+        long i = Double.doubleToLongBits(x);
+        i = 0x5fe6ec85e7de30daL - (i >> 1);
+        x = Double.longBitsToDouble(i);
+        x *= (1.5d - xHalf * x * x);
+        return x;
+    }
 
     @Override
     public void runOpMode() {
@@ -74,6 +90,7 @@ public class ScotBot extends LinearOpMode {
         motorBR = hardwareMap.get(DcMotor.class, "br");
         intakeL = hardwareMap.get(DcMotor.class, "il");
         intakeR = hardwareMap.get(DcMotor.class, "ir");
+        lift = hardwareMap.get(DcMotor.class, "lift");
 
         motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorFR.setDirection(DcMotor.Direction.FORWARD);
@@ -81,6 +98,7 @@ public class ScotBot extends LinearOpMode {
         motorBR.setDirection(DcMotor.Direction.FORWARD);
         intakeL.setDirection(DcMotor.Direction.REVERSE);
         intakeR.setDirection(DcMotor.Direction.FORWARD);
+        lift.setDirection(DcMotor.Direction.FORWARD);
 
         motorFL.setPower(0);
         motorFR.setPower(0);
@@ -88,13 +106,15 @@ public class ScotBot extends LinearOpMode {
         motorBR.setPower(0);
         intakeL.setPower(0);
         intakeR.setPower(0);
+        lift.setPower(0);
 
-        motorFL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorFR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     /**
@@ -107,9 +127,8 @@ public class ScotBot extends LinearOpMode {
 
     /**
      * Sets power of left motors.
-     * 
+     *
      * @param power the power to the motors to
-     * 
      * @return the power the motors are set to
      */
     private double setPowerLeft(double power) {
@@ -121,9 +140,8 @@ public class ScotBot extends LinearOpMode {
 
     /**
      * Sets power of right motors.
-     * 
+     *
      * @param power the power to the motors to
-     * 
      * @return the power the motors are set to
      */
     private double setPowerRight(double power) {
@@ -134,42 +152,35 @@ public class ScotBot extends LinearOpMode {
     }
 
     /**
-     * Turns on intake
-     * 
-     * todo: Save state to save time when setting intake
+     * Toggles the Intake.
      */
-    private void intakeOn() {
-        intakeL.setPower(INTAKE_POWER);
-        intakeR.setPower(INTAKE_POWER);
-    }
-    
-    /**
-     * Turns off intake
-     */
-    private void intakeOff() {
-        intakeL.setPower(0);
-        intakeR.setPower(0);
+    private void intakeToggle() {
+        intakeL.setPower(1.0 - intakeL.getPower());
+        intakeR.setPower(1.0 - intakeR.getPower());
     }
 
     /**
      * Sets motor strength to reflect gamepad input.
      */
     private void drive() {
-        double power = invSqrt(1 - gamepad1.left_stick_x * gamepad1.left_stick_x);
+        if (gamepad1.left_stick_x * gamepad1.left_stick_x < 0.7) {
+            double power = invSqrt(1 - gamepad1.left_stick_x * gamepad1.left_stick_x);
 
-        if (gamepad1.left_stick_x < 0) {
-            setPowerLeft(gamepad1.left_stick_y);
-            setPowerRight(gamepad1.left_stick_y * power);
+            if (gamepad1.left_stick_x < 0) {
+                setPowerRight(setPowerLeft(gamepad1.left_stick_y) * power);
+            } else {
+                setPowerLeft(setPowerRight(gamepad1.left_stick_y) * power);
+            }
         } else {
-            setPowerRight(gamepad1.left_stick_y);
-            setPowerLeft(gamepad1.left_stick_y * power);
+            setPowerRight(-setPowerLeft(Math.signum(gamepad1.left_stick_x)));
         }
 
-        if (true) {// should be gamepad.a
-            intakeOn();
-        } else {
-            intakeOff();
+        if (gamepad1.a && !aPrev) {
+            intakeToggle();
         }
+        aPrev = gamepad1.a;
+
+        lift.setPower(gamepad1.right_stick_y * 0.7);
     }
 
     /**
@@ -190,23 +201,5 @@ public class ScotBot extends LinearOpMode {
         rotation += deltaRot;
 
         double deltaLoc = (deltaLeft + deltaRight) / 2d;
-    }
-
-    /**
-     * Calculate the inverse sqrt root of a number
-     * 
-     * @see https://stackoverflow.com/questions/11513344/how-to-implement-the-fast-inverse-square-root-in-java
-     * 
-     * @param x the number to calculate on
-     * 
-     * @return the result
-     */
-    public static double invSqrt(double x) {
-        double xHalf = 0.5d * x;
-        long i = Double.doubleToLongBits(x);
-        i = 0x5fe6ec85e7de30daL - (i >> 1);
-        x = Double.longBitsToDouble(i);
-        x *= (1.5d - xHalf * x * x);
-        return x;
     }
 }
