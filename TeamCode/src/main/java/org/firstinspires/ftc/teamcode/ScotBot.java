@@ -163,14 +163,8 @@ public class ScotBot extends LinearOpMode {
      * Sets motor strength to reflect gamepad input.
      */
     private void drive() {
-        if (gamepad1.left_stick_x * gamepad1.left_stick_x < 0.7) {
-            double power = invSqrt(1 - gamepad1.left_stick_x * gamepad1.left_stick_x);
-
-            if (gamepad1.left_stick_x < 0) {
-                setPowerLeft(setPowerRight(-gamepad1.left_stick_y) * power);
-            } else {
-                setPowerRight(setPowerLeft(-gamepad1.left_stick_y) * power);
-            }
+        if (gamepad1.left_stick_x * gamepad1.left_stick_x > gamepad1.left_stick_y * gamepad1.left_stick_y){
+            setPowerLeft(setPowerRight(gamepad1.left_stick_y));
         } else {
             setPowerRight(-setPowerLeft(Math.signum(gamepad1.left_stick_x)));
         }
