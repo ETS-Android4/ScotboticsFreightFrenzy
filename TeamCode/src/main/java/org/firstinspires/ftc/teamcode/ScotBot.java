@@ -55,7 +55,7 @@ public class ScotBot extends LinearOpMode {
      *
      * @param x the number to calculate on
      * @return the result
-     * @see https://stackoverflow.com/questions/11513344/how-to-implement-the-fast-inverse-square-root-in-java
+     * from: https://stackoverflow.com/questions/11513344/how-to-implement-the-fast-inverse-square-root-in-java
      */
     public static double invSqrt(double x) {
         double xHalf = 0.5d * x;
@@ -164,9 +164,9 @@ public class ScotBot extends LinearOpMode {
      */
     private void drive() {
         if (gamepad1.left_stick_x * gamepad1.left_stick_x > gamepad1.left_stick_y * gamepad1.left_stick_y){
-            setPowerLeft(setPowerRight(gamepad1.left_stick_y));
+            setPowerLeft(setPowerRight(gamepad1.left_stick_y * gamepad1.left_stick_y * gamepad1.left_stick_y));
         } else {
-            setPowerRight(-setPowerLeft(Math.signum(gamepad1.left_stick_x)));
+            setPowerRight(-setPowerLeft(gamepad1.left_stick_x * gamepad1.left_stick_x * gamepad1.left_stick_x));
         }
 
         if (gamepad1.a && !aPrev) {
