@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /**
  * Main class representing the scotbot.
@@ -41,8 +42,6 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-
-    private final static double TICKS_TO_INCHES = 0.00872664625997d, INCHES_TO_RADIANS = 0.032258065d, INTAKE_POWER = 0.5;
 
     private double x, y, rotation;
 
@@ -77,6 +76,7 @@ public class ScotBot extends LinearOpMode {
 
         while (opModeIsActive()) {
             run();
+            telemetry.update();
         }
     }
 
@@ -92,10 +92,10 @@ public class ScotBot extends LinearOpMode {
         intakeR = hardwareMap.get(DcMotor.class, "ir");
         lift = hardwareMap.get(DcMotor.class, "lift");
 
-        motorFL.setDirection(DcMotor.Direction.REVERSE);
-        motorFR.setDirection(DcMotor.Direction.FORWARD);
-        motorBL.setDirection(DcMotor.Direction.REVERSE);
-        motorBR.setDirection(DcMotor.Direction.FORWARD);
+        motorFL.setDirection(DcMotor.Direction.FORWARD);
+        motorFR.setDirection(DcMotor.Direction.REVERSE);
+        motorBL.setDirection(DcMotor.Direction.FORWARD);
+        motorBR.setDirection(DcMotor.Direction.REVERSE);
         intakeL.setDirection(DcMotor.Direction.REVERSE);
         intakeR.setDirection(DcMotor.Direction.FORWARD);
         lift.setDirection(DcMotor.Direction.FORWARD);
@@ -108,10 +108,10 @@ public class ScotBot extends LinearOpMode {
         intakeR.setPower(0);
         lift.setPower(0);
 
-        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -167,9 +167,9 @@ public class ScotBot extends LinearOpMode {
             double power = invSqrt(1 - gamepad1.left_stick_x * gamepad1.left_stick_x);
 
             if (gamepad1.left_stick_x < 0) {
-                setPowerRight(setPowerLeft(gamepad1.left_stick_y) * power);
+                setPowerLeft(setPowerRight(-gamepad1.left_stick_y) * power);
             } else {
-                setPowerLeft(setPowerRight(gamepad1.left_stick_y) * power);
+                setPowerRight(setPowerLeft(-gamepad1.left_stick_y) * power);
             }
         } else {
             setPowerRight(-setPowerLeft(Math.signum(gamepad1.left_stick_x)));
@@ -196,7 +196,7 @@ public class ScotBot extends LinearOpMode {
         double deltaLeft = (deltaBL + deltaFL) / 2d;
         double deltaRight = (deltaBR + deltaFR) / 2d;
 
-        double deltaRot = (deltaLeft - deltaRight) * TICKS_TO_INCHES; // TICKS_TO_INCHES was ENCODER_TO_RADIANS
+        double deltaRot = (deltaLeft - deltaRight);// * TICKS_TO_INCHES; // TICKS_TO_INCHES was ENCODER_TO_RADIANS
 
         rotation += deltaRot;
 
