@@ -34,6 +34,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 /**
  * Main class representing the scotbot.
  */
@@ -42,13 +44,14 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
+    private static final double INTAKE_POWER=1.0;
 
     private double x, y, rotation;
 
     private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR, lift;
-    private double posFL, posFR, posBL, posBR;
+    private double liftTarget = 0;
 
-    private boolean aPrev = false;
+    private boolean aPrev=false, bPrev=false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -108,10 +111,10 @@ public class ScotBot extends LinearOpMode {
         intakeR.setPower(0);
         lift.setPower(0);
 
-        motorFL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorFR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -121,7 +124,6 @@ public class ScotBot extends LinearOpMode {
      * Main loop of the bot.
      */
     private void run() {
-        updateLocation();
         drive();
     }
 
@@ -134,6 +136,8 @@ public class ScotBot extends LinearOpMode {
     private double setPowerLeft(double power) {
         motorBL.setPower(power);
         motorFL.setPower(power);
+
+        telemetry.addLine("Left:"+power);
 
         return power;
     }
@@ -148,52 +152,50 @@ public class ScotBot extends LinearOpMode {
         motorBR.setPower(power);
         motorFR.setPower(power);
 
+        telemetry.addLine("Right:"+power);
+
         return power;
     }
 
     /**
      * Toggles the Intake.
      */
-    private void intakeToggle() {
-        intakeL.setPower(1.0 - intakeL.getPower());
-        intakeR.setPower(1.0 - intakeR.getPower());
+    private double intakeToggle(int i) {
+        double power = INTAKE_POWER*(1-(int)(Math.signum(intakeL.getPower())+1+3*i)>>1);
+
+        intakeL.setPower(power);
+        intakeR.setPower(power);
+
+        return power;
+    }
+
+    /**
+     * Set lift power to move towards target.
+     */
+    private double updateLift()
+    {
+        //todo
+        return -1.0;
     }
 
     /**
      * Sets motor strength to reflect gamepad input.
      */
     private void drive() {
-        if (gamepad1.left_stick_x * gamepad1.left_stick_x > gamepad1.left_stick_y * gamepad1.left_stick_y){
-            setPowerLeft(setPowerRight(gamepad1.left_stick_y * gamepad1.left_stick_y * gamepad1.left_stick_y));
+        if (gamepad1.left_stick_x * gamepad1.left_stick_x < gamepad1.left_stick_y * gamepad1.left_stick_y){
+            setPowerRight(setPowerLeft(-gamepad1.left_stick_y * gamepad1.left_stick_y * gamepad1.left_stick_y));
         } else {
             setPowerRight(-setPowerLeft(gamepad1.left_stick_x * gamepad1.left_stick_x * gamepad1.left_stick_x));
         }
 
         if (gamepad1.a && !aPrev) {
-            intakeToggle();
+            intakeToggle(0);
+        } else if (gamepad1.b && !bPrev) {
+            intakeToggle(1);
         }
         aPrev = gamepad1.a;
+        bPrev = gamepad1.b;
 
-        lift.setPower(gamepad1.right_stick_y * 0.7);
-    }
-
-    /**
-     * Updates the bots location based of motor encoders.
-     */
-    private void updateLocation() {
-        // Get motor change and update location
-        double deltaBL = posBL - (posBL = motorBL.getCurrentPosition()),
-                deltaBR = posBR - (posBR = motorBR.getCurrentPosition()),
-                deltaFL = posFL - (posFL = motorFL.getCurrentPosition()),
-                deltaFR = posFR - (posFR = motorFR.getCurrentPosition());
-
-        double deltaLeft = (deltaBL + deltaFL) / 2d;
-        double deltaRight = (deltaBR + deltaFR) / 2d;
-
-        double deltaRot = (deltaLeft - deltaRight);// * TICKS_TO_INCHES; // TICKS_TO_INCHES was ENCODER_TO_RADIANS
-
-        rotation += deltaRot;
-
-        double deltaLoc = (deltaLeft + deltaRight) / 2d;
+        liftTarget += gamepad1.right_stick_y * 0.7;
     }
 }
