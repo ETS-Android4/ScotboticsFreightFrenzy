@@ -161,11 +161,16 @@ public class ScotBot extends LinearOpMode {
      * Toggles the Intake.
      */
     private double intakeToggle(int i) {
-        double power = INTAKE_POWER*(1-(int)(Math.signum(intakeL.getPower())+1+3*i)>>1);
-
+        double power = 0.0;
+        if (intakeL.getPower() != 0){
+            double power = 0.0;
+        } else if (i == 0){
+            power = INTAKE_POWER;
+        } else {
+            power = -INTAKE_POWER;
+        }
         intakeL.setPower(power);
         intakeR.setPower(power);
-
         return power;
     }
 
@@ -196,6 +201,6 @@ public class ScotBot extends LinearOpMode {
         aPrev = gamepad1.a;
         bPrev = gamepad1.b;
 
-        liftTarget += gamepad1.right_stick_y * 0.7;
+        liftTarget += gamepad1.right_stick_y * 1.0;
     }
 }
