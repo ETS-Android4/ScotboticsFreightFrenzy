@@ -163,7 +163,7 @@ public class ScotBot extends LinearOpMode {
     private double intakeToggle(int i) {
         double power = 0.0;
         if (intakeL.getPower() != 0){
-            double power = 0.0;
+            power = 0.0;
         } else if (i == 0){
             power = INTAKE_POWER;
         } else {
@@ -200,7 +200,7 @@ public class ScotBot extends LinearOpMode {
         }
         aPrev = gamepad1.a;
         bPrev = gamepad1.b;
-
-        liftTarget += gamepad1.right_stick_y * 1.0;
+        lift.setPower(gamepad1.right_stick_y);
+        // liftTarget += gamepad1.right_stick_y * 1.0;
     }
 }
