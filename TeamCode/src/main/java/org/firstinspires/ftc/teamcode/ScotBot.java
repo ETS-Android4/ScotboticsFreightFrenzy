@@ -205,7 +205,7 @@ public class ScotBot extends LinearOpMode {
         }
         aPrev = gamepad1.a;
         bPrev = gamepad1.b;
-        lift.setPower(gamepad1.right_stick_y);
+        lift.setPower(-gamepad1.right_stick_y);
         if (gamepad1.left_bumper){
             scoopServo.setPosition(1);
         } else if (gamepad1.right_bumper){
