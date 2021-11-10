@@ -51,7 +51,7 @@ public class ScotBot extends LinearOpMode {
 
     private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR, lift;
     private Servo scoopServo;
-    private double liftTarget = 0;
+    private int liftTarget = 0;
 
     private boolean aPrev=false, bPrev=false;
 
@@ -122,7 +122,7 @@ public class ScotBot extends LinearOpMode {
         motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /**
@@ -185,6 +185,9 @@ public class ScotBot extends LinearOpMode {
     private double updateLift()
     {
         //todo
+        lift.setTargetPosition(liftTarget);
+        telemetry.addLine("Lift Target: "+lift.getTargetPosition());
+        telemetry.addLine("Lift Position: "+lift.getCurrentPosition());
         return -1.0;
     }
 
@@ -205,12 +208,12 @@ public class ScotBot extends LinearOpMode {
         }
         aPrev = gamepad1.a;
         bPrev = gamepad1.b;
-        lift.setPower(-gamepad1.right_stick_y);
+        // lift.setPower(-gamepad1.right_stick_y);
         if (gamepad1.left_bumper){
             scoopServo.setPosition(1);
         } else if (gamepad1.right_bumper){
             scoopServo.setPosition(0.5);
         }
-        // liftTarget += gamepad1.right_stick_y * 1.0;
+        liftTarget += gamepad1.right_stick_y * 100;
     }
 }
