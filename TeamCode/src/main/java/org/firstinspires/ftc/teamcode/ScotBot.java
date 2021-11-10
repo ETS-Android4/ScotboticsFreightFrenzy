@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -49,9 +50,10 @@ public class ScotBot extends LinearOpMode {
 
     private double x, y, rotation;
 
-    private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR, lift;
+    private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR;
+    private DcMotorEx lift;
     private Servo scoopServo;
-    private int liftTarget = 0;
+    private int liftTarget = 100;
 
     private boolean aPrev=false, bPrev=false;
 
@@ -95,7 +97,7 @@ public class ScotBot extends LinearOpMode {
         motorBR = hardwareMap.get(DcMotor.class, "br");
         intakeL = hardwareMap.get(DcMotor.class, "il");
         intakeR = hardwareMap.get(DcMotor.class, "ir");
-        lift = hardwareMap.get(DcMotor.class, "lift");
+        lift = hardwareMap.get(DcMotorEx.class, "lift");
         scoopServo = hardwareMap.get(Servo.class, "scoop");
 
         motorFL.setDirection(DcMotor.Direction.FORWARD);
@@ -113,7 +115,7 @@ public class ScotBot extends LinearOpMode {
         motorBR.setPower(0);
         intakeL.setPower(0);
         intakeR.setPower(0);
-        lift.setPower(0);
+        lift.setTargetPosition(200);
         scoopServo.setPosition(0.5);
 
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -123,6 +125,8 @@ public class ScotBot extends LinearOpMode {
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        lift.setVelocity(200);
     }
 
     /**
@@ -215,5 +219,6 @@ public class ScotBot extends LinearOpMode {
             scoopServo.setPosition(0.5);
         }
         liftTarget += gamepad1.right_stick_y * 100;
+        updateLift();
     }
 }
