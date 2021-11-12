@@ -46,16 +46,16 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-    private static final double INTAKE_POWER=1.0;
+    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5;
 
     private double x, y, rotation;
 
-    private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR;
+    private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR, turnTable;
     private DcMotorEx lift;
     private Servo scoopServo;
     private int liftTarget = 100;
 
-    private boolean aPrev=false, bPrev=false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -97,6 +97,7 @@ public class ScotBot extends LinearOpMode {
         motorBR = hardwareMap.get(DcMotor.class, "br");
         intakeL = hardwareMap.get(DcMotor.class, "il");
         intakeR = hardwareMap.get(DcMotor.class, "ir");
+        turnTable = hardwareMap.get(DcMotor.class, "tt");
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         scoopServo = hardwareMap.get(Servo.class, "scoop");
 
@@ -106,6 +107,7 @@ public class ScotBot extends LinearOpMode {
         motorBR.setDirection(DcMotor.Direction.REVERSE);
         intakeL.setDirection(DcMotor.Direction.REVERSE);
         intakeR.setDirection(DcMotor.Direction.FORWARD);
+        turnTable.setDirection(DcMotor.Direction.FORWARD);
         lift.setDirection(DcMotor.Direction.REVERSE);
         scoopServo.setDirection(Servo.Direction.FORWARD);
 
@@ -115,6 +117,7 @@ public class ScotBot extends LinearOpMode {
         motorBR.setPower(0);
         intakeL.setPower(0);
         intakeR.setPower(0);
+        turnTable.setPower(0);
         lift.setTargetPosition(200);
         scoopServo.setPosition(0.5);
 
@@ -124,6 +127,7 @@ public class ScotBot extends LinearOpMode {
         motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turnTable.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         lift.setVelocity(200);
@@ -184,6 +188,22 @@ public class ScotBot extends LinearOpMode {
     }
 
     /**
+     * Toggles the Intake.
+     */
+    private double turnTableToggle(int i) {
+        double power = 0.0;
+        if (intakeL.getPower() != 0){
+            power = 0.0;
+        } else if (i == 0){
+            power = TURN_TABLE_POWER;
+        } else {
+            power = -TURN_TABLE_POWER;
+        }
+        turnTable.setPower(power);
+        return power;
+    }
+
+    /**
      * Set lift power to move towards target.
      */
     private double updateLift()
@@ -212,6 +232,13 @@ public class ScotBot extends LinearOpMode {
         }
         aPrev = gamepad1.a;
         bPrev = gamepad1.b;
+        if (gamepad1.x && !xPrev) {
+            turnTableToggle(0);
+        } else if (gamepad1.y && !yPrev) {
+            turnTableToggle(1);
+        }
+        xPrev = gamepad1.x;
+        yPrev = gamepad1.y;
         // lift.setPower(-gamepad1.right_stick_y);
         if (gamepad1.left_bumper){
             scoopServo.setPosition(1);
