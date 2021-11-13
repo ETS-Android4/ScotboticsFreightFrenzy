@@ -53,7 +53,7 @@ public class ScotBot extends LinearOpMode {
     private DcMotor motorFL, motorFR, motorBL, motorBR, intakeL, intakeR, turnTable;
     private DcMotorEx lift;
     private Servo scoopServo;
-    private int liftTarget = 100;
+    private int liftTarget = 0;
 
     private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false;
 
@@ -192,7 +192,7 @@ public class ScotBot extends LinearOpMode {
      */
     private double turnTableToggle(int i) {
         double power = 0.0;
-        if (intakeL.getPower() != 0){
+        if (turnTable.getPower() != 0){
             power = 0.0;
         } else if (i == 0){
             power = TURN_TABLE_POWER;
@@ -245,7 +245,7 @@ public class ScotBot extends LinearOpMode {
         } else if (gamepad1.right_bumper){
             scoopServo.setPosition(0.5);
         }
-        liftTarget += gamepad1.right_stick_y * 100;
+        liftTarget += gamepad1.right_stick_y * 5;
         updateLift();
     }
 }
