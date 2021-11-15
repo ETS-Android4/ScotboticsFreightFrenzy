@@ -88,7 +88,7 @@ public class ScotBot extends LinearOpMode {
     }
 
     /**
-     * initializes motors.
+     * Initializes motors and servos.
      */
     private void initMotors() {
         motorFL = hardwareMap.get(DcMotor.class, "fl");
@@ -118,7 +118,7 @@ public class ScotBot extends LinearOpMode {
         intakeL.setPower(0);
         intakeR.setPower(0);
         turnTable.setPower(0);
-        lift.setTargetPosition(200);
+        lift.setTargetPosition(0);
         scoopServo.setPosition(0.5);
 
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
