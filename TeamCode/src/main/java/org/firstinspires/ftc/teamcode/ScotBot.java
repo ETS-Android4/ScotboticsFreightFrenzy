@@ -119,7 +119,7 @@ public class ScotBot extends LinearOpMode {
         intakeR.setPower(0);
         turnTable.setPower(0);
         lift.setTargetPosition(0);
-        scoopServo.setPosition(0.5);
+        scoopServo.setPosition(0);
 
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -241,9 +241,9 @@ public class ScotBot extends LinearOpMode {
         yPrev = gamepad1.y;
         // lift.setPower(-gamepad1.right_stick_y);
         if (gamepad1.left_bumper){
-            scoopServo.setPosition(1);
-        } else if (gamepad1.right_bumper){
             scoopServo.setPosition(0.5);
+        } else if (gamepad1.right_bumper){
+            scoopServo.setPosition(0);
         }
         liftTarget += gamepad1.right_stick_y * 5;
         updateLift();
