@@ -33,10 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * Main class representing the scotbot.
@@ -46,7 +43,7 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5;
+    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.6;
 
     private double x, y, rotation;
 
@@ -55,7 +52,7 @@ public class ScotBot extends LinearOpMode {
     private Servo scoopServo;
     private int liftTarget = 0;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, SCOOP_SERVO_LOCKED =false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -240,10 +237,12 @@ public class ScotBot extends LinearOpMode {
         xPrev = gamepad1.x;
         yPrev = gamepad1.y;
         // lift.setPower(-gamepad1.right_stick_y);
-        if (gamepad1.left_bumper){
-            scoopServo.setPosition(0.6);
-        } else if (gamepad1.right_bumper){
-            scoopServo.setPosition(0);
+        if (gamepad1.guide && !guidePrev){
+            SCOOP_SERVO_LOCKED = !SCOOP_SERVO_LOCKED;
+        }
+        telemetry.addLine("Scoop Lock: "+SCOOP_SERVO_LOCKED);
+        if (!SCOOP_SERVO_LOCKED) {
+            scoopServo.setPosition(SCOOP_SERVO_MAX * gamepad1.right_trigger);
         }
         liftTarget += gamepad1.right_stick_y * 5;
         updateLift();
