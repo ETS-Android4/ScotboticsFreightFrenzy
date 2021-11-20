@@ -52,7 +52,7 @@ public class ScotBot extends LinearOpMode {
     private Servo scoopServo;
     private int liftTarget = 0;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, SCOOP_SERVO_LOCKED =false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, rBumpPrev=false, SCOOP_SERVO_LOCKED =false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -115,7 +115,7 @@ public class ScotBot extends LinearOpMode {
         intakeL.setPower(0);
         intakeR.setPower(0);
         turnTable.setPower(0);
-        lift.setTargetPosition(0);
+        lift.setPower(0);
         scoopServo.setPosition(0);
 
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -125,9 +125,7 @@ public class ScotBot extends LinearOpMode {
         intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turnTable.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        lift.setVelocity(200);
+        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     /**
@@ -236,15 +234,20 @@ public class ScotBot extends LinearOpMode {
         }
         xPrev = gamepad1.x;
         yPrev = gamepad1.y;
-        // lift.setPower(-gamepad1.right_stick_y);
+        lift.setPower(gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y);
+        telemetry.addLine("lift: "+gamepad1.right_stick_y);
         if (gamepad1.guide && !guidePrev){
             SCOOP_SERVO_LOCKED = !SCOOP_SERVO_LOCKED;
         }
+        guidePrev = gamepad1.guide;
         telemetry.addLine("Scoop Lock: "+SCOOP_SERVO_LOCKED);
         if (!SCOOP_SERVO_LOCKED) {
             scoopServo.setPosition(SCOOP_SERVO_MAX * gamepad1.right_trigger);
         }
-        liftTarget += gamepad1.right_stick_y * 5;
-        updateLift();
+        if (gamepad1.right_bumper && !rBumpPrev){
+            SCOOP_SERVO_LOCKED = true;
+            scoopServo.setPosition(0.05);
+        }
+        rBumpPrev = gamepad1.right_bumper;
     }
 }
