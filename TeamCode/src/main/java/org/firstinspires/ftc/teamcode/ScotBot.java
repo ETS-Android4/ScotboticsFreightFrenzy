@@ -51,8 +51,9 @@ public class ScotBot extends LinearOpMode {
     private DcMotorEx lift;
     private Servo scoopServo;
     private int liftTarget = 0;
+    private double scoopTarget=0;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, rBumpPrev=false, SCOOP_SERVO_LOCKED =false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -171,10 +172,9 @@ public class ScotBot extends LinearOpMode {
     private double intakeToggle(int i) {
         double power = 0.0;
         if (intakeL.getPower() != 0){
-            power = 0.0;
         } else if (i == 0){
             power = INTAKE_POWER;
-        } else {
+        } else if (i ==1){
             power = -INTAKE_POWER;
         }
         intakeL.setPower(power);
@@ -188,10 +188,9 @@ public class ScotBot extends LinearOpMode {
     private double turnTableToggle(int i) {
         double power = 0.0;
         if (turnTable.getPower() != 0){
-            power = 0.0;
         } else if (i == 0){
             power = TURN_TABLE_POWER;
-        } else {
+        } else if (i == 1){
             power = -TURN_TABLE_POWER;
         }
         turnTable.setPower(power);
@@ -234,20 +233,19 @@ public class ScotBot extends LinearOpMode {
         }
         xPrev = gamepad1.x;
         yPrev = gamepad1.y;
-        lift.setPower(gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y);
-        telemetry.addLine("lift: "+gamepad1.right_stick_y);
+        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y;
+        lift.setPower(liftPower);
+        telemetry.addLine("lift: "+liftPower);
+        if (gamepad1.right_bumper) scoopTarget+=0.0005;
+        if (gamepad1.left_bumper) scoopTarget-=0.0005;
+        if (scoopTarget < 0.0) scoopTarget = 0;
+        if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
+
         if (gamepad1.guide && !guidePrev){
-            SCOOP_SERVO_LOCKED = !SCOOP_SERVO_LOCKED;
+            scoopTarget = 0.05;
+            intakeToggle(-1);
         }
         guidePrev = gamepad1.guide;
-        telemetry.addLine("Scoop Lock: "+SCOOP_SERVO_LOCKED);
-        if (!SCOOP_SERVO_LOCKED) {
-            scoopServo.setPosition(SCOOP_SERVO_MAX * gamepad1.right_trigger);
-        }
-        if (gamepad1.right_bumper && !rBumpPrev){
-            SCOOP_SERVO_LOCKED = true;
-            scoopServo.setPosition(0.05);
-        }
-        rBumpPrev = gamepad1.right_bumper;
+        scoopServo.setPosition(scoopTarget);
     }
 }
