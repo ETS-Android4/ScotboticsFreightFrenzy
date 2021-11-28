@@ -98,6 +98,11 @@ public abstract class Autonomous extends LinearOpMode {
         motorFR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        motorFL.setPower(1);
+        motorFR.setPower(1);
+        motorBL.setPower(1);
+        motorBR.setPower(1);
     }
 
     private void rotate(double dist) {
@@ -115,6 +120,11 @@ public abstract class Autonomous extends LinearOpMode {
         motorFR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        motorFL.setPower(1);
+        motorFR.setPower(1);
+        motorBL.setPower(1);
+        motorBR.setPower(1);
     }
 
 
