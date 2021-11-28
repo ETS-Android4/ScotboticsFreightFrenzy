@@ -127,6 +127,7 @@ public class ScotBot extends LinearOpMode {
         intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turnTable.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     /**
@@ -213,12 +214,14 @@ public class ScotBot extends LinearOpMode {
      * Sets motor strength to reflect gamepad input.
      */
     private void drive() {
+        // wheel control
         if (gamepad1.left_stick_x * gamepad1.left_stick_x < gamepad1.left_stick_y * gamepad1.left_stick_y){
-            setPowerRight(setPowerLeft(-gamepad1.left_stick_y * gamepad1.left_stick_y * gamepad1.left_stick_y));
+            setPowerRight(setPowerLeft(-gamepad1.left_stick_y * gamepad1.left_stick_y * Math.signum(gamepad1.left_stick_y))); //drive
         } else {
-            setPowerRight(-setPowerLeft(gamepad1.left_stick_x * gamepad1.left_stick_x * gamepad1.left_stick_x));
+            setPowerRight(-setPowerLeft(gamepad1.left_stick_x * gamepad1.left_stick_x * gamepad1.left_stick_x)); //rotate
         }
-
+        
+        // intake control
         if (gamepad1.a && !aPrev) {
             intakeToggle(0);
         } else if (gamepad1.b && !bPrev) {
@@ -226,6 +229,8 @@ public class ScotBot extends LinearOpMode {
         }
         aPrev = gamepad1.a;
         bPrev = gamepad1.b;
+
+        // turntable control
         if (gamepad1.x && !xPrev) {
             turnTableToggle(0);
         } else if (gamepad1.y && !yPrev) {
@@ -233,19 +238,26 @@ public class ScotBot extends LinearOpMode {
         }
         xPrev = gamepad1.x;
         yPrev = gamepad1.y;
-        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y;
+
+        // lift control
+        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y * 0.7;
         lift.setPower(liftPower);
         telemetry.addLine("lift: "+liftPower);
+
+        // scoop control
         if (gamepad1.right_bumper) scoopTarget+=0.0005;
         if (gamepad1.left_bumper) scoopTarget-=0.0005;
         if (scoopTarget < 0.0) scoopTarget = 0;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
 
+        // lock to prep to lift
         if (gamepad1.guide && !guidePrev){
             scoopTarget = 0.05;
             intakeToggle(-1);
         }
         guidePrev = gamepad1.guide;
+
+        //scoop control p2
         scoopServo.setPosition(scoopTarget);
     }
 }
