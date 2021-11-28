@@ -30,21 +30,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@TeleOp(name = "DRIVE-TEST", group = "Pushbot")
-public class Autonomous extends LinearOpMode {
+public abstract class Autonomous extends LinearOpMode {
+    protected int startingPosition;
     private DcMotorEx motorFL, motorFR, motorBL, motorBR;
     private OpenCvWebcam webcam;
     private int dropOffHeight;
@@ -57,6 +53,16 @@ public class Autonomous extends LinearOpMode {
 
         initMotors();
         initWebcam();
+
+        drive(100*startingPosition);
+
+        while (motorFL.isBusy() || motorBR.isBusy() || motorBL.isBusy() || motorBR.isBusy() && opModeIsActive())
+            telemetry.update();
+
+        rotate(100*startingPosition);
+
+        while (motorFL.isBusy() || motorBR.isBusy() || motorBL.isBusy() || motorBR.isBusy() && opModeIsActive())
+            telemetry.update();
 
         while (opModeIsActive()) {
             telemetry.update();
@@ -71,12 +77,46 @@ public class Autonomous extends LinearOpMode {
         motorBL = hardwareMap.get(DcMotorEx.class, "bl");
         motorBR = hardwareMap.get(DcMotorEx.class, "br");
 
-
         motorFL.setDirection(DcMotor.Direction.FORWARD);
         motorFR.setDirection(DcMotor.Direction.REVERSE);
         motorBL.setDirection(DcMotor.Direction.FORWARD);
         motorBR.setDirection(DcMotor.Direction.REVERSE);
     }
+
+    private void drive(double dist) {
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorFL.setTargetPosition((int) dist);
+        motorFR.setTargetPosition((int) dist);
+        motorBL.setTargetPosition((int) dist);
+        motorBR.setTargetPosition((int) dist);
+
+        motorFL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    private void rotate(double dist) {
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorFL.setTargetPosition((int) dist);
+        motorFR.setTargetPosition((int) dist);
+        motorBL.setTargetPosition(-(int) dist);
+        motorBR.setTargetPosition(-(int) dist);
+
+        motorFL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
 
     private void initWebcam() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -86,11 +126,11 @@ public class Autonomous extends LinearOpMode {
 
 
     class Pipeline extends OpenCvPipeline {
-        private Boolean heightSet=false;
+        private Boolean heightSet = false;
 
         @Override
         public Mat processFrame(Mat input) {
-            if (!heightSet) {
+            if (!heightSet || true) {
                 double l = 0, m = 0, r = 0;
 
                 for (int i = 0; i < input.width() / 3; i++) {
@@ -100,12 +140,11 @@ public class Autonomous extends LinearOpMode {
                         r += input.get(j, i + input.width() * 2 / 3)[1];
                     }
                 }
-                dropOffHeight=0;
-                if (l<m || l<r)
-                {
-
-                }
-                heightSet=true;
+                dropOffHeight = 0;
+                if (l < m || l < r) telemetry.addLine("Left");
+                else if (r < m) telemetry.addLine("Middle");
+                else telemetry.addLine("Right");
+                heightSet = true;
             }
 
             return input;
