@@ -30,17 +30,22 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-public abstract class Autonomous extends LinearOpMode {
-    protected int startingPosition;
+public class Autonomous extends LinearOpMode {
+    protected int startingPosition=0;
     private DcMotorEx motorFL, motorFR, motorBL, motorBR;
     private OpenCvWebcam webcam;
     private int dropOffHeight;
@@ -54,14 +59,12 @@ public abstract class Autonomous extends LinearOpMode {
         initMotors();
         initWebcam();
 
-        drive(100*startingPosition);
-
-        while (motorFL.isBusy() || motorBR.isBusy() || motorBL.isBusy() || motorBR.isBusy() && opModeIsActive())
+        drive(-100*startingPosition);
+        while ((motorFL.isBusy() || motorBR.isBusy() || motorBL.isBusy() || motorBR.isBusy()) && opModeIsActive())
             telemetry.update();
 
         rotate(100*startingPosition);
-
-        while (motorFL.isBusy() || motorBR.isBusy() || motorBL.isBusy() || motorBR.isBusy() && opModeIsActive())
+        while ((motorFL.isBusy() || motorBR.isBusy() || motorBL.isBusy() || motorBR.isBusy()) && opModeIsActive())
             telemetry.update();
 
         while (opModeIsActive()) {
@@ -99,10 +102,10 @@ public abstract class Autonomous extends LinearOpMode {
         motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        motorFL.setPower(1);
-        motorFR.setPower(1);
-        motorBL.setPower(1);
-        motorBR.setPower(1);
+        motorFL.setPower(1f);
+        motorFR.setPower(1f);
+        motorBL.setPower(1f);
+        motorBR.setPower(1f);
     }
 
     private void rotate(double dist) {
@@ -131,7 +134,12 @@ public abstract class Autonomous extends LinearOpMode {
     private void initWebcam() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        telemetry.addData("Webcam", webcam);
+
+        webcam.openCameraDevice();
         webcam.setPipeline(new Pipeline());
+        webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
+
     }
 
 
@@ -140,18 +148,24 @@ public abstract class Autonomous extends LinearOpMode {
 
         @Override
         public Mat processFrame(Mat input) {
+            Imgproc.rectangle(input, new Point(0, 100), new Point(input.width(), input.height()-100), new Scalar(0, 255, 0), 4);
+
+
             if (!heightSet || true) {
                 double l = 0, m = 0, r = 0;
 
                 for (int i = 0; i < input.width() / 3; i++) {
-                    for (int j = 0; j < input.height(); j++) {
-                        l += input.get(j, i)[1];
-                        m += input.get(j, i + input.width() / 3)[1];
-                        r += input.get(j, i + input.width() * 2 / 3)[1];
+                    for (int j = 100; j < input.height()-100; j++) {
+                        double[] p = input.get(j, i);
+                        l += p[1]-p[0]-p[2];
+                        p = input.get(j, i + input.width() / 3);
+                        m += p[1]-p[0]-p[2];
+                        p = input.get(j, i + input.width() * 2 / 3);
+                        r += p[1]-p[0]-p[2];
                     }
                 }
                 dropOffHeight = 0;
-                if (l < m || l < r) telemetry.addLine("Left");
+                if (l > m && l > r) telemetry.addLine("Left");
                 else if (r < m) telemetry.addLine("Middle");
                 else telemetry.addLine("Right");
                 heightSet = true;
