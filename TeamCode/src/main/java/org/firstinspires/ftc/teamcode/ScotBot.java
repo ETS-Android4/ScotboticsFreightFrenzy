@@ -119,6 +119,12 @@ public class ScotBot extends LinearOpMode {
         lift.setPower(0);
         scoopServo.setPosition(0);
 
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -128,6 +134,7 @@ public class ScotBot extends LinearOpMode {
         turnTable.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     /**
@@ -147,7 +154,8 @@ public class ScotBot extends LinearOpMode {
         motorBL.setPower(power);
         motorFL.setPower(power);
 
-        telemetry.addLine("Left:"+power);
+        //telemetry.addLine("Left:"+power);
+        telemetry.addLine("Left encoder:"+motorFL.getCurrentPosition());
 
         return power;
     }
@@ -162,7 +170,8 @@ public class ScotBot extends LinearOpMode {
         motorBR.setPower(power);
         motorFR.setPower(power);
 
-        telemetry.addLine("Right:"+power);
+        //telemetry.addLine("Right:"+power);
+        telemetry.addLine("Right encoder:"+motorFR.getCurrentPosition());
 
         return power;
     }
@@ -242,13 +251,15 @@ public class ScotBot extends LinearOpMode {
         // lift control
         double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y * 0.7;
         lift.setPower(liftPower);
-        telemetry.addLine("lift: "+liftPower);
+        //telemetry.addLine("lift: "+liftPower);
+        telemetry.addLine("Lift encoder:"+lift.getCurrentPosition());
 
         // scoop control
         if (gamepad1.right_bumper) scoopTarget+=0.0005;
         if (gamepad1.left_bumper) scoopTarget-=0.0005;
         if (scoopTarget < 0.0) scoopTarget = 0;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
+        telemetry.addLine("Scoop value:"+scoopTarget);
 
         // lock to prep to lift
         if (gamepad1.guide && !guidePrev){

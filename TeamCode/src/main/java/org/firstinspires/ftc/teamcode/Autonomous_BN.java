@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@TeleOp(name = "Auto Blue Near", group = "Autonomous")
+@Autonomous(name = "Auto Blue Near", group = "Autonomous")
 /*Robot is in blue area near the audience*/
-public class Autonomous_BN extends Autonomous {
+public class Autonomous_BN extends org.firstinspires.ftc.teamcode.Autonomous {
     private final int startingPosition = 0;
 }
