@@ -53,7 +53,7 @@ public class TestBot extends LinearOpMode {
     private int liftTarget = 0;
     private double scoopTarget=0;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, dpadDownPrev=false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -270,5 +270,21 @@ public class TestBot extends LinearOpMode {
 
         //scoop control p2
         scoopServo.setPosition(scoopTarget);
+
+        //reset encoders on dpad down
+        if (gamepad1.dpad_down && !dpadDownPrev){
+            motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        dpadDownPrev = gamepad1.dpad_down;
     }
 }
