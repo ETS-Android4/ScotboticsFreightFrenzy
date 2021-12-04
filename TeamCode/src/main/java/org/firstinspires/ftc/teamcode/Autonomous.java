@@ -258,8 +258,14 @@ public class Autonomous extends LinearOpMode {
         mod = new int[]{0,0,0,0}; //todo: val
         for(int i=0; i < 3; i++){
         drive(4200+mod[sp]); //todo: val
-        telemetry.addLine(""+i); telemetry.update();
-        while(driving());
+        while(driving()){
+            telemetry.addLine(""+i);
+            telemetry.addLine("FL"+motorFL.getCurrentPosition());
+            telemetry.addLine("FR"+motorFR.getCurrentPosition());
+            telemetry.addLine("BL"+motorBL.getCurrentPosition());
+            telemetry.addLine("BR"+motorBR.getCurrentPosition());
+            telemetry.update();
+        }
         reset();}
 /*
         //rotate so back is facing shipping hub

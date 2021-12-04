@@ -39,7 +39,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 /**
  * Main class representing the scotbot.
  */
-@Autonomous(name = "Auto Lift to Zero", group = "Autonomous")
+@Autonomous(name = "Lift to Zero", group = "Autonomous")
 public class AutoLiftToZero extends LinearOpMode {
     private DcMotorEx lift;
     @Override
@@ -76,6 +76,6 @@ public class AutoLiftToZero extends LinearOpMode {
     }
 
     private void drive() {
-        lift.setTargetPosition(0);;
+        lift.setTargetPosition(0);
     }
 }
