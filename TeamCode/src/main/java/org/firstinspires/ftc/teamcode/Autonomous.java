@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -50,7 +51,7 @@ public class Autonomous extends LinearOpMode {
     private DcMotorEx motorFL, motorFR, motorBL, motorBR, lift;
     private Servo scoopServo;
     private OpenCvWebcam webcam; //todo: see if I can stop webcam when dropOffHeight is found
-    private int dropOffHeight = -1;
+    private int dropOffHeight = 0; //todo: set to -1
     private int[] possibleDropOffHeight = {0, 0, 0};
 
     @Override
@@ -62,7 +63,7 @@ public class Autonomous extends LinearOpMode {
         initMotors();
         initWebcam();
         while(dropOffHeight==-1){
-            wait(1);
+            //wait(1);
             for (int i=0;i<possibleDropOffHeight.length;i++)
                 if (possibleDropOffHeight[i]>1)
                     dropOffHeight = i;
@@ -91,14 +92,14 @@ public class Autonomous extends LinearOpMode {
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         scoopServo = hardwareMap.get(Servo.class, "scoop");
 
-        motorFL.setDirection(DcMotor.Direction.REVERSE);
+        motorFL.setDirection(DcMotor.Direction.FORWARD);
         motorFR.setDirection(DcMotor.Direction.FORWARD);
-        motorBL.setDirection(DcMotor.Direction.REVERSE);
+        motorBL.setDirection(DcMotor.Direction.FORWARD);
         motorBR.setDirection(DcMotor.Direction.FORWARD);
         lift.setDirection(DcMotor.Direction.FORWARD);
         scoopServo.setDirection(Servo.Direction.REVERSE);
 
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setTargetPosition(0);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         lift.setPower(1f);
@@ -106,35 +107,6 @@ public class Autonomous extends LinearOpMode {
     }
 
     private void drive(int ticks) { //todo: check that power needs to be the same direction as the encoder
-        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        motorFL.setTargetPosition(ticks);
-        motorFR.setTargetPosition(ticks);
-        motorBL.setTargetPosition(ticks);
-        motorBR.setTargetPosition(ticks);
-
-        motorFL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
-        double power = Math.signum(ticks);
-        
-        motorFL.setPower(power);
-        motorFR.setPower(power);
-        motorBL.setPower(power);
-        motorBR.setPower(power);
-    }
-
-    private void rotate(int ticks) { //todo: ^
-        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         motorFL.setTargetPosition(ticks);
         motorFR.setTargetPosition(-ticks);
         motorBL.setTargetPosition(ticks);
@@ -151,6 +123,42 @@ public class Autonomous extends LinearOpMode {
         motorFR.setPower(-power);
         motorBL.setPower(power);
         motorBR.setPower(-power);
+
+    }
+
+    private void rotate(int ticks) { //todo: ^
+
+        motorFL.setTargetPosition(ticks);
+        motorFR.setTargetPosition(ticks);
+        motorBL.setTargetPosition(ticks);
+        motorBR.setTargetPosition(ticks);
+
+        motorFL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double power = Math.signum(ticks);
+
+        motorFL.setPower(power);
+        motorFR.setPower(power);
+        motorBL.setPower(power);
+        motorBR.setPower(power);
+    }
+
+    private void reset()
+    {
+        initMotors();
+
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorFL.setPower(0);
+        motorFR.setPower(0);
+        motorBL.setPower(0);
+        motorBR.setPower(0);
     }
 
     private boolean driving(){
@@ -177,13 +185,13 @@ public class Autonomous extends LinearOpMode {
             while (cur > goal) {
                 cur -= 0.0005;
                 scoopServo.setPosition(cur);
-                wait(0, 1000000);
+                //wait(0, 1000000);
             }
         } else{
             while (cur < goal) {
                 cur += 0.0005;
                 scoopServo.setPosition(cur);
-                wait(0, 1000000);
+                //wait(0, 1000000);
             }
         }
         scoopServo.setPosition(goal);
@@ -236,53 +244,84 @@ public class Autonomous extends LinearOpMode {
         int[] opt;
         int[] mod;
         scoopServo.setPosition(0.05);
+        reset();
 
         //lift in preparation to move
         mod = new int[]{0,0,0,0}; //todo: val
-        lift.setTargetPosition(0+mod[sp]); //todo: val
+        //lift.setTargetPosition(1480+mod[sp]); //todo: val
+        while(lift.isBusy());
+
+        telemetry.addLine("x");
+        telemetry.update();
 
         //move next to the shipping hub
         mod = new int[]{0,0,0,0}; //todo: val
-        drive(0+mod[sp]); //todo: val
-
+        for(int i=0; i < 3; i++){
+        drive(4200+mod[sp]); //todo: val
+        telemetry.addLine(""+i); telemetry.update();
+        while(driving());
+        reset();}
+/*
         //rotate so back is facing shipping hub
         mod = new int[]{0,0,0,0}; //todo: val
-        if(0==sp%2)sign=1;else sign=-1; //todo: sign
-        rotate(sign*(0+mod[sp])); //todo: val
+        sign = (0==sp%2 ? 1 : -1); //todo: sign
+        drive(*//*sign**//*(1800+mod[sp])); //todo: val
+        while(driving());
+        reset();
 
         //back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
-        drive(0+mod[sp]); //todo: val
+        opt=new int[]{0,0};//todo:val
+        drive(opt[sp%2]+mod[sp]); //todo: val
+        while(driving());
+        reset();
 
         //dumping precedure
         opt = new int[]{0,0,0}; //todo: val
         drive(opt[sp]); //move back
-        opt = new int[]{0,0,0}; //todo: val
+        opt = new int[]{0,0,1480}; //low, mid, high //todo: val
         liftTo(opt[sp]); //move over turn table wheel
+        while(driving() || lift.isBusy());
+        reset();
         dumpTo(.45); //todo: val
-        opt = new int[]{0,0,0}; //todo: val
+        opt = new int[]{0,0,1700}; //todo: val
         liftTo(opt[sp]); //level height
-        dumpTo(.55); //todo: val
-        liftTo(0); //todo: val //^ move over turn table wheel
-        dumpTo(0); //todo: val
-        liftTo(0); //todo: val //^og riding height
+        while(lift.isBusy());
+        reset();
+        dumpTo(.51); //todo: val
+        liftTo(1480); //todo: val //^ move over turn table wheel
+        while(lift.isBusy());
+        reset();
+        dumpTo(0.05); //todo: val
+        liftTo(1480); //todo: val //^og riding height
+        while(lift.isBusy());
+        reset();
 
         //rotate ^other way
         mod = new int[]{0,0,0,0}; //todo: val
         sign=-sign;
-        rotate(sign*(0+mod[sp])); //todo: val
+        rotate(sign*(1800+mod[sp])); //todo: val
+        while(driving());
+        reset();
 
         //back up to get in warehouse (twords drivers)
         mod = new int[]{0,0,0,0}; //todo: val
-        drive(0+mod[sp]); //todo: val
+        drive(-1900+mod[sp]); //todo: val
+        while(driving());
+        reset();
 
         //rotate to warehouse
         mod = new int[]{0,0,0,0}; //todo: val
-        rotate(sign*(0+mod[sp])); //todo: val
+        rotate(sign*(1800+mod[sp])); //todo: val
+        while(driving());
+        reset();
 
         //drive close to warehouse
         mod = new int[]{0,0,0,0}; //todo: val
-        drive(0+mod[sp]); //todo: val
+        opt = new int[]{5440,0};
+        drive(opt[sp%2]+mod[sp]); //todo: val
+        while(driving());
+        reset();*/
     }
     private boolean finishingMove(boolean bool){ //todo: execution
         double high=1.0;//todo val

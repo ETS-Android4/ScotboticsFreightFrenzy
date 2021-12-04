@@ -277,13 +277,13 @@ public class TestBot extends LinearOpMode {
             motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         dpadDownPrev = gamepad1.dpad_down;
     }
