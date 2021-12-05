@@ -33,12 +33,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Main class representing the scotbot.
  */
-@TeleOp(name = "TestBot-DRIVE", group = "Pushbot")
+@TeleOp(name = "TestBot-DRIVE")
 public class TestBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
@@ -53,7 +54,7 @@ public class TestBot extends LinearOpMode {
     private int liftTarget = 0;
     private double scoopTarget=0;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, dpadDownPrev=false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev=false, dpadDownPrev=false, dpadUpPrev=false;
 
     /**
      * Calculate the inverse sqrt root of a number
@@ -99,10 +100,10 @@ public class TestBot extends LinearOpMode {
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         scoopServo = hardwareMap.get(Servo.class, "scoop");
 
-        motorFL.setDirection(DcMotor.Direction.FORWARD);
+        motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorFR.setDirection(DcMotor.Direction.REVERSE);
         motorBL.setDirection(DcMotor.Direction.FORWARD);
-        motorBR.setDirection(DcMotor.Direction.REVERSE);
+        motorBR.setDirection(DcMotor.Direction.FORWARD);
         intakeL.setDirection(DcMotor.Direction.REVERSE);
         intakeR.setDirection(DcMotor.Direction.FORWARD);
         turnTable.setDirection(DcMotor.Direction.FORWARD);
@@ -249,14 +250,14 @@ public class TestBot extends LinearOpMode {
         yPrev = gamepad1.y;
 
         // lift control
-        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y * 0.7;
+        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y;
         lift.setPower(liftPower);
         //telemetry.addLine("lift: "+liftPower);
         telemetry.addLine("Lift encoder:"+lift.getCurrentPosition());
 
         // scoop control
-        if (gamepad1.right_bumper) scoopTarget+=0.0005;
-        if (gamepad1.left_bumper) scoopTarget-=0.0005;
+        if (gamepad1.right_bumper) scoopTarget+=0.001;
+        if (gamepad1.left_bumper) scoopTarget-=0.001;
         if (scoopTarget < 0.0) scoopTarget = 0;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
         telemetry.addLine("Scoop value:"+scoopTarget);
@@ -277,14 +278,17 @@ public class TestBot extends LinearOpMode {
             motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         dpadDownPrev = gamepad1.dpad_down;
+        if (gamepad1.dpad_up && ! dpadUpPrev){
+            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        dpadUpPrev = gamepad1.dpad_up;
     }
 }

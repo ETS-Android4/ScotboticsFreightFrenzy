@@ -39,9 +39,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 /**
  * Main class representing the scotbot.
  */
-@Autonomous(name = "Lift to Zero", group = "Autonomous")
+@Autonomous(name = "Lift To Zero", preselectTeleOp = "SCOTBOT-DRIVE", group = "Util")
 public class AutoLiftToZero extends LinearOpMode {
     private DcMotorEx lift;
+    private Servo scoopServo;
     @Override
     public void runOpMode() {
         telemetry.addLine("TestBot basic drive");
@@ -61,10 +62,13 @@ public class AutoLiftToZero extends LinearOpMode {
      */
     private void initMotors() {
         lift = hardwareMap.get(DcMotorEx.class, "lift");
+        scoopServo = hardwareMap.get(Servo.class, "scoop");
         lift.setDirection(DcMotor.Direction.REVERSE);
+        scoopServo.setDirection(Servo.Direction.REVERSE);
         lift.setPower(1);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        scoopServo.setPosition(0.03);
 
     }
 

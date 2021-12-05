@@ -33,12 +33,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Main class representing the scotbot.
  */
-@TeleOp(name = "SCOTBOT-DRIVE", group = "Pushbot")
+@TeleOp(name = "SCOTBOT-DRIVE")
 public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
@@ -54,22 +55,6 @@ public class ScotBot extends LinearOpMode {
     private double scoopTarget=0;
 
     private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false;
-
-    /**
-     * Calculate the inverse sqrt root of a number
-     *
-     * @param x the number to calculate on
-     * @return the result
-     * from: https://stackoverflow.com/questions/11513344/how-to-implement-the-fast-inverse-square-root-in-java
-     */
-    public static double invSqrt(double x) {
-        double xHalf = 0.5d * x;
-        long i = Double.doubleToLongBits(x);
-        i = 0x5fe6ec85e7de30daL - (i >> 1);
-        x = Double.longBitsToDouble(i);
-        x *= (1.5d - xHalf * x * x);
-        return x;
-    }
 
     @Override
     public void runOpMode() {
@@ -99,10 +84,10 @@ public class ScotBot extends LinearOpMode {
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         scoopServo = hardwareMap.get(Servo.class, "scoop");
 
-        motorFL.setDirection(DcMotor.Direction.FORWARD);
+        motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorFR.setDirection(DcMotor.Direction.REVERSE);
         motorBL.setDirection(DcMotor.Direction.FORWARD);
-        motorBR.setDirection(DcMotor.Direction.REVERSE);
+        motorBR.setDirection(DcMotor.Direction.FORWARD);
         intakeL.setDirection(DcMotor.Direction.REVERSE);
         intakeR.setDirection(DcMotor.Direction.FORWARD);
         turnTable.setDirection(DcMotor.Direction.FORWARD);
@@ -241,7 +226,7 @@ public class ScotBot extends LinearOpMode {
         yPrev = gamepad1.y;
 
         // lift control
-        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y * 0.7;
+        double liftPower=gamepad1.right_stick_y * gamepad1.right_stick_y * gamepad1.right_stick_y;
         lift.setPower(liftPower);
         telemetry.addLine("lift: "+liftPower);
         
