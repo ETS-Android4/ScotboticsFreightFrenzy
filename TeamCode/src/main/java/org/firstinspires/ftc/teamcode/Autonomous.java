@@ -51,7 +51,7 @@ public class Autonomous extends LinearOpMode {
     private Servo scoopServo;
     private OpenCvWebcam webcam; //todo: see if I can stop webcam when dropOffHeight is found
     private int dropOffHeight = -1; //todo: set to -1
-    private int[] possibleDropOffHeight = {0, 0, 0};
+    private int[] possibleDropOffHeight = {0, 0};
 
 
     protected int STARTING_POSITION() {return -1;}
@@ -66,16 +66,11 @@ public class Autonomous extends LinearOpMode {
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.addLine("webcam inited");
         telemetry.update();
-
         waitForStart();
-
-        while(dropOffHeight==-1){
-            //wait(1);
-            for (int i=0;i<possibleDropOffHeight.length;i++)
-                if (possibleDropOffHeight[i]>1)
-                    dropOffHeight = i;
+        while (possibleDropOffHeight[0] != possibleDropOffHeight[1]){
         }
         webcam.stopStreaming();
+        dropOffHeight=possibleDropOffHeight[0];
         telemetry.addLine("DOH"+dropOffHeight);
         telemetry.update();
 
@@ -217,18 +212,22 @@ public class Autonomous extends LinearOpMode {
                     r += p[1]-p[0]-p[2];
                 }
             }
+            possibleDropOffHeight[1]=possibleDropOffHeight[0];
             if (l > m && l > r) { //todo: make sure numbers corespond to barcode location
                 telemetry.addLine("Left");
-                possibleDropOffHeight[2]+=1;
+                possibleDropOffHeight[0]=2;
             }
             else if (r < m) {
                 telemetry.addLine("Middle");
-                possibleDropOffHeight[1]+=1;
+                possibleDropOffHeight[0]=1;
             }
             else {
                 telemetry.addLine("Right");
-                possibleDropOffHeight[0]+=1;
+                possibleDropOffHeight[0]=0;
             }
+            telemetry.addLine(""+possibleDropOffHeight[0]);
+            telemetry.addLine(""+possibleDropOffHeight[1]);
+            telemetry.update();
             return input;
         }
     }
