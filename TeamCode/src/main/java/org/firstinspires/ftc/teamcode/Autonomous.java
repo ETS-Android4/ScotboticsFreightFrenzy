@@ -59,21 +59,26 @@ public class Autonomous extends LinearOpMode {
     @Override
     public void runOpMode() {
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
+        telemetry.update();
         initMotors();
         scoopServo.setPosition(0.05);
         initWebcam();
+        telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
+        telemetry.addLine("webcam inited");
+        telemetry.update();
+
+        waitForStart();
+
         while(dropOffHeight==-1){
             //wait(1);
             for (int i=0;i<possibleDropOffHeight.length;i++)
                 if (possibleDropOffHeight[i]>1)
                     dropOffHeight = i;
         }
+        webcam.stopStreaming();
         telemetry.addLine("DOH"+dropOffHeight);
         telemetry.update();
-        webcam.stopStreaming();
 
-        waitForStart();
-        
         run();
 
         telemetry.addLine("FINISHING MOVE!");
@@ -214,7 +219,7 @@ public class Autonomous extends LinearOpMode {
             }
             if (l > m && l > r) { //todo: make sure numbers corespond to barcode location
                 telemetry.addLine("Left");
-                possibleDropOffHeight[0]+=1;
+                possibleDropOffHeight[2]+=1;
             }
             else if (r < m) {
                 telemetry.addLine("Middle");
@@ -222,7 +227,7 @@ public class Autonomous extends LinearOpMode {
             }
             else {
                 telemetry.addLine("Right");
-                possibleDropOffHeight[2]+=1;
+                possibleDropOffHeight[0]+=1;
             }
             return input;
         }
@@ -252,15 +257,15 @@ public class Autonomous extends LinearOpMode {
 
         //back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{0,0};//todo:val
-        drive(opt[sp&1]+mod[sp]); //todo: val
+        opt=new int[]{100,0, 0};//todo:val
+        drive(opt[dropOffHeight]+mod[sp]); //todo: val
         while(driving() || lift.isBusy());
 
         //move lift to correct height
         dumpTo(.4); //todo: val
         sleep(1000);
         mod = new int[]{0,0,0,0}; //todo: val
-        opt = new int[]{-50, 750, 1480};
+        opt = new int[]{-50, 650, 1480};
         liftTo(opt[dropOffHeight] + mod[sp]); //todo: val //^ move over turn table wheel
         while (lift.isBusy());
 
@@ -269,6 +274,12 @@ public class Autonomous extends LinearOpMode {
         sleep(1500);
         dumpTo(0.05); //todo: val
         liftTo(1000);
+
+        //undo back up to shipping hub
+        mod = new int[]{0, 0, 0, 0}; //todo: val
+        opt=new int[]{-100,0,0};//todo:val
+        drive(opt[dropOffHeight]+mod[sp]); //todo: val
+        while(driving());
 
         //rotate other way
         mod = new int[]{0,0,0,0}; //todo: val

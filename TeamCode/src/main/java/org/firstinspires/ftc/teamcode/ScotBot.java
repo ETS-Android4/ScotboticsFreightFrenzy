@@ -44,7 +44,7 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.6;
+    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.75;
 
     private double x, y, rotation;
 
@@ -54,7 +54,7 @@ public class ScotBot extends LinearOpMode {
     private int liftTarget = 0;
     private double scoopTarget=0;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false, endGameBool=false;
 
     @Override
     public void runOpMode() {
@@ -201,12 +201,24 @@ public class ScotBot extends LinearOpMode {
      */
     private void drive() {
         // wheel control
-        if (gamepad1.left_stick_x * gamepad1.left_stick_x < gamepad1.left_stick_y * gamepad1.left_stick_y){
-            setPowerRight(setPowerLeft(-gamepad1.left_stick_y * gamepad1.left_stick_y * Math.signum(gamepad1.left_stick_y))); //drive
+        if (!gamepad1.dpad_down) {
+            if (gamepad1.left_stick_x * gamepad1.left_stick_x < gamepad1.left_stick_y * gamepad1.left_stick_y) {
+                setPowerRight(setPowerLeft(-gamepad1.left_stick_y * gamepad1.left_stick_y * Math.signum(gamepad1.left_stick_y))); //drive
+            } else {
+                setPowerRight(-setPowerLeft(gamepad1.left_stick_x * gamepad1.left_stick_x * gamepad1.left_stick_x)); //rotate
+            }
         } else {
-            setPowerRight(-setPowerLeft(gamepad1.left_stick_x * gamepad1.left_stick_x * gamepad1.left_stick_x)); //rotate
+            double high=1.0;//todo val
+            double low=0.8;//todo val
+            if(endGameBool){
+                setPowerLeft(high);
+                setPowerRight(low);
+            } else {
+                setPowerLeft(low);
+                setPowerRight(high);
         }
-        
+        endGameBool = !endGameBool;
+        }
         // intake control
         if (gamepad1.a && !aPrev) {
             intakeToggle(0);
@@ -231,8 +243,8 @@ public class ScotBot extends LinearOpMode {
         telemetry.addLine("lift: "+liftPower);
         
         // scoop control
-        if (gamepad1.right_bumper) scoopTarget+=0.0005;
-        if (gamepad1.left_bumper) scoopTarget-=0.0005;
+        if (gamepad1.right_bumper) scoopTarget+=0.00075;
+        if (gamepad1.left_bumper) scoopTarget-=0.00075;
         if (scoopTarget < 0.0) scoopTarget = 0;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
 
