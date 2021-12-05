@@ -256,7 +256,7 @@ public class Autonomous extends LinearOpMode {
 
         //back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{100,0, 0};//todo:val
+        opt=new int[]{175,0, 0};//todo:val
         drive(opt[dropOffHeight]+mod[sp]); //todo: val
         while(driving() || lift.isBusy());
 
@@ -276,7 +276,7 @@ public class Autonomous extends LinearOpMode {
 
         //undo back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{-100,0,0};//todo:val
+        opt=new int[]{-175,0,0};//todo:val
         drive(opt[dropOffHeight]+mod[sp]); //todo: val
         while(driving());
 
