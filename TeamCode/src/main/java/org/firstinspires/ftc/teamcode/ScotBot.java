@@ -44,7 +44,7 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.75;
+    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.90;
 
     private double x, y, rotation;
 
@@ -52,7 +52,7 @@ public class ScotBot extends LinearOpMode {
     private DcMotorEx lift;
     private Servo scoopServo;
     private int liftTarget = 0;
-    private double scoopTarget=0;
+    private double scoopTarget=0.15;
 
     private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false, endGameBool=false;
 
@@ -102,7 +102,7 @@ public class ScotBot extends LinearOpMode {
         intakeR.setPower(0);
         turnTable.setPower(0);
         lift.setPower(0);
-        scoopServo.setPosition(0);
+        scoopServo.setPosition(0.15);
 
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -245,12 +245,12 @@ public class ScotBot extends LinearOpMode {
         // scoop control
         if (gamepad1.right_bumper) scoopTarget+=0.00075;
         if (gamepad1.left_bumper) scoopTarget-=0.00075;
-        if (scoopTarget < 0.0) scoopTarget = 0;
+        if (scoopTarget < 0.15) scoopTarget = 0.15;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
 
         // lock to prep to lift
         if (gamepad1.guide && !guidePrev){
-            scoopTarget = 0.05;
+            scoopTarget = 0.20;
             intakeToggle(-1);
         }
         guidePrev = gamepad1.guide;

@@ -118,7 +118,7 @@ public class Autonomous extends LinearOpMode {
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         lift.setPower(1f);
-        scoopServo.setPosition(0f);
+        scoopServo.setPosition(0.15);
     }
 
     private void drive(int ticks) {
@@ -261,7 +261,7 @@ public class Autonomous extends LinearOpMode {
         while(driving() || lift.isBusy());
 
         //move lift to correct height
-        dumpTo(.4); //todo: val
+        dumpTo(.55); //todo: val
         sleep(1000);
         mod = new int[]{0,0,0,0}; //todo: val
         opt = new int[]{-50, 650, 1480};
@@ -269,9 +269,9 @@ public class Autonomous extends LinearOpMode {
         while (lift.isBusy());
 
         //dumping precedure
-        dumpTo(.6); //todo: val
+        dumpTo(.75); //todo: val
         sleep(1500);
-        dumpTo(0.05); //todo: val
+        dumpTo(0.20); //todo: val
         liftTo(1000);
 
         //undo back up to shipping hub

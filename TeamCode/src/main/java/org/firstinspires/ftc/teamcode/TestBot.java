@@ -44,7 +44,7 @@ public class TestBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.6;
+    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.90;
 
     private double x, y, rotation;
 
@@ -118,7 +118,7 @@ public class TestBot extends LinearOpMode {
         intakeR.setPower(0);
         turnTable.setPower(0);
         lift.setPower(0);
-        scoopServo.setPosition(0);
+        scoopServo.setPosition(0.15);
 
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -258,13 +258,13 @@ public class TestBot extends LinearOpMode {
         // scoop control
         if (gamepad1.right_bumper) scoopTarget+=0.001;
         if (gamepad1.left_bumper) scoopTarget-=0.001;
-        if (scoopTarget < 0.0) scoopTarget = 0;
+        if (scoopTarget < 0.15) scoopTarget = .15;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
         telemetry.addLine("Scoop value:"+scoopTarget);
 
         // lock to prep to lift
         if (gamepad1.guide && !guidePrev){
-            scoopTarget = 0.05;
+            scoopTarget = 0.20;
             intakeToggle(-1);
         }
         guidePrev = gamepad1.guide;
