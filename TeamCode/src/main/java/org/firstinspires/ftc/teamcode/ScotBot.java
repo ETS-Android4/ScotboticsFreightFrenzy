@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
@@ -54,7 +53,7 @@ public class ScotBot extends LinearOpMode {
     private int liftTarget = 0;
     private double scoopTarget=0.15;
 
-    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false, endGameBool=false, dpadLPrev=false;
+    private boolean aPrev=false, bPrev=false, xPrev=false, yPrev=false, guidePrev =false, endGameBool=false, dpadRPrev =false;
 
     @Override
     public void runOpMode() {
@@ -249,8 +248,8 @@ public class ScotBot extends LinearOpMode {
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
 
         // Enable more scoop range
-        if (gamepad1.dpad_right && !dpadLPrev) TMP_SCOOP_MIN=SCOOP_MIN-TMP_SCOOP_MIN;
-        dpadLPrev = gamepad1.dpad_right;
+        if (gamepad1.dpad_right && !dpadRPrev) TMP_SCOOP_MIN=SCOOP_MIN-TMP_SCOOP_MIN;
+        dpadRPrev = gamepad1.dpad_right;
 
         // lock to prep to lift
         if (gamepad1.guide && !guidePrev){
