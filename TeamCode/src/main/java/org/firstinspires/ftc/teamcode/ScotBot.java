@@ -43,7 +43,7 @@ public class ScotBot extends LinearOpMode {
     // Distance between wheels 15.5 in
     // Wheel circumference 4 pi in
     // Encoder ticks per rev 1440 ticks
-    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.5, SCOOP_SERVO_MAX=0.90, SCOOP_MIN=.15;
+    private static final double INTAKE_POWER=1.0, TURN_TABLE_POWER=0.8, SCOOP_SERVO_MAX=0.90, SCOOP_MIN=.15;
 
     private double TMP_SCOOP_MIN=SCOOP_MIN, x, y, rotation;
 
