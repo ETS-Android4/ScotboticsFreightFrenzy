@@ -239,9 +239,10 @@ public class Autonomous extends LinearOpMode {
         int[] opt;
         int[] mod;
 
-        //lift in preparation to move
+        //lift in preparation to movesleep(1000);*/
         mod = new int[]{0,0,0,0}; //todo: val
-        liftTo(1480 + mod[sp]); //todo: val //^ move over turn table wheel
+        opt = new int[]{-50, 650, 1480};
+        liftTo(opt[dropOffHeight] + mod[sp]); //todo: val //^ move over turn table wheel
 
         //move next to the shipping hub
         mod = new int[]{0,0,0,0}; //todo: val
@@ -260,19 +261,12 @@ public class Autonomous extends LinearOpMode {
         drive(opt[dropOffHeight]+mod[sp]); //todo: val
         while(driving() || lift.isBusy());
 
-        //move lift to correct height
-        dumpTo(.55); //todo: val
-        sleep(1000);
-        mod = new int[]{0,0,0,0}; //todo: val
-        opt = new int[]{-50, 650, 1480};
-        liftTo(opt[dropOffHeight] + mod[sp]); //todo: val //^ move over turn table wheel
-        while (lift.isBusy());
-
-        //dumping precedure
+        //dumping procedure
         dumpTo(.75); //todo: val
         sleep(1500);
         dumpTo(0.20); //todo: val
         liftTo(1000);
+        while(lift.isBusy());
 
         //undo back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
