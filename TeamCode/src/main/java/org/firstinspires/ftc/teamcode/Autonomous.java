@@ -119,6 +119,11 @@ public class Autonomous extends LinearOpMode {
 
         lift.setPower(1f);
         scoopServo.setPosition(0.15);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     private void drive(int ticks) {
