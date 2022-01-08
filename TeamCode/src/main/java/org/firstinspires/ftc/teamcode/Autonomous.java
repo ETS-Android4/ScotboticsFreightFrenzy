@@ -61,7 +61,7 @@ public class Autonomous extends LinearOpMode {
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.update();
         initMotors();
-        scoopServo.setPosition(0.05);
+        scoopServo.setPosition(0.20);
         initWebcam();
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.addLine("webcam inited");
@@ -246,7 +246,7 @@ public class Autonomous extends LinearOpMode {
 
         //lift in preparation to move
         mod = new int[]{0,0,0,0}; //todo: val
-        liftTo(1480 + mod[sp]); //todo: val //^ move over turn table wheel
+        liftTo(900 + mod[sp]); //todo: val //^ move over turn table wheel
 
         //move next to the shipping hub
         mod = new int[]{0,0,0,0}; //todo: val

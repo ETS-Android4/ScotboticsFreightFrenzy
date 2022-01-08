@@ -68,7 +68,7 @@ public class AutoLiftToZero extends LinearOpMode {
         lift.setPower(1);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        scoopServo.setPosition(0.20);
+        scoopServo.setPosition(0.15                                             );
 
     }
 
