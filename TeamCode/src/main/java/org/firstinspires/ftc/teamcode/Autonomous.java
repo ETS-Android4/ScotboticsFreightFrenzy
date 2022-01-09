@@ -61,7 +61,7 @@ public class Autonomous extends LinearOpMode {
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.update();
         initMotors();
-        scoopServo.setPosition(0.18);
+        scoopServo.setPosition(0.17);
         initWebcam();
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.addLine("webcam inited");
@@ -269,15 +269,15 @@ public class Autonomous extends LinearOpMode {
         dumpTo(.55); //todo: val
         sleep(1000);
         mod = new int[]{0,0,0,0}; //todo: val
-        opt = new int[]{-50, 650, 1480};
+        opt = new int[]{-50, 650, 1280};
         liftTo(opt[dropOffHeight] + mod[sp]); //todo: val //^ move over turn table wheel
         while (lift.isBusy());
 
         //dumping precedure
-        dumpTo(.75); //todo: val
+        dumpTo(.85); //todo: val //tournament: was .75
         sleep(1500);
-        liftTo(700);
-        while(lift.getCurrentPosition()<200);
+        liftTo(550); //tournament: was 700
+        while(lift.getCurrentPosition()<350);
         dumpTo(0.15); //todo: val
 
         //undo back up to shipping hub
@@ -309,6 +309,11 @@ public class Autonomous extends LinearOpMode {
             drive(opt[sp % 2] + mod[sp]); //todo: val
         }
         while (driving() || lift.isBusy());
+
+        //rotate about 30deg to make it over
+        mod = new int[]{0, 0, 0, 0}; //todo: val
+        rotate(sign*(-630+mod[sp])); //todo: val
+        while(driving());
     }
 
     private boolean finishingMove(boolean bool){ //todo: execution
