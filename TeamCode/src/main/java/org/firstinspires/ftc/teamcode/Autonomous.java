@@ -61,7 +61,7 @@ public class Autonomous extends LinearOpMode {
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.update();
         initMotors();
-        scoopServo.setPosition(0.20);
+        scoopServo.setPosition(0.18);
         initWebcam();
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
         telemetry.addLine("webcam inited");
@@ -182,12 +182,12 @@ public class Autonomous extends LinearOpMode {
         double cur = scoopServo.getPosition();
         if(cur > goal){
             while (cur > goal) {
-                cur -= 0.0005;
+                cur -= 0.00075;
                 scoopServo.setPosition(cur);
             }
         } else{
             while (cur < goal) {
-                cur += 0.0005;
+                cur += 0.00075;
                 scoopServo.setPosition(cur);
             }
         }
@@ -261,7 +261,7 @@ public class Autonomous extends LinearOpMode {
 
         //back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{175,0, 0};//todo:val
+        opt=new int[]{0,-175, -350};//todo:val
         drive(opt[dropOffHeight]+mod[sp]); //todo: val
         while(driving() || lift.isBusy());
 
@@ -276,12 +276,13 @@ public class Autonomous extends LinearOpMode {
         //dumping precedure
         dumpTo(.75); //todo: val
         sleep(1500);
-        dumpTo(0.20); //todo: val
-        liftTo(1000);
+        liftTo(700);
+        while(lift.getCurrentPosition()<200);
+        dumpTo(0.15); //todo: val
 
         //undo back up to shipping hub
         mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{-175,0,0};//todo:val
+        opt=new int[]{0,175,350};//todo:val
         drive(opt[dropOffHeight]+mod[sp]); //todo: val
         while(driving());
 

@@ -242,8 +242,8 @@ public class ScotBot extends LinearOpMode {
         telemetry.addLine("lift: "+liftPower);
         
         // scoop control
-        if (gamepad1.right_bumper) scoopTarget+=0.00075;
-        if (gamepad1.left_bumper) scoopTarget-=0.00075;
+        scoopTarget+=0.0015*gamepad1.right_trigger;
+        scoopTarget-=0.0015*gamepad1.left_trigger;
         if (scoopTarget < 0.15) scoopTarget = 0.15;
         if (scoopTarget > SCOOP_SERVO_MAX) scoopTarget = SCOOP_SERVO_MAX;
 
@@ -253,7 +253,7 @@ public class ScotBot extends LinearOpMode {
 
         // lock to prep to lift
         if (gamepad1.guide && !guidePrev){
-            scoopTarget = 0.20;
+            scoopTarget = 0.19;
             intakeToggle(-1);
         }
         guidePrev = gamepad1.guide;
