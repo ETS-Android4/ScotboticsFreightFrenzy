@@ -49,8 +49,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class Autonomous extends LinearOpMode {
     private DcMotorEx motorFL, motorFR, motorBL, motorBR, lift;
     private Servo scoopServo;
-    private OpenCvWebcam webcam; //todo: see if I can stop webcam when dropOffHeight is found
-    private int dropOffHeight = -1; //todo: set to -1
+    private OpenCvWebcam webcam;
+    private int dropOffHeight = -1; 
     private int[] possibleDropOffHeight = {0, 0};
 
 
@@ -59,7 +59,7 @@ public class Autonomous extends LinearOpMode {
     @Override
     public void runOpMode() {
         telemetry.addLine("Autonomous w/ green detection, SP="+STARTING_POSITION());
-        telemetry.update();
+        telemetry.update(); // Update will clear the console and push data to console
         initMotors();
         scoopServo.setPosition(0.17);
         initWebcam();
@@ -90,7 +90,7 @@ public class Autonomous extends LinearOpMode {
     }
 
     private void initMotors() {
-        motorFL = hardwareMap.get(DcMotorEx.class, "fl");
+        motorFL = hardwareMap.get(DcMotorEx.class, "fl"/*<- this is set in the controller app*/);
         motorFR = hardwareMap.get(DcMotorEx.class, "fr");
         motorBL = hardwareMap.get(DcMotorEx.class, "bl");
         motorBR = hardwareMap.get(DcMotorEx.class, "br");
@@ -164,7 +164,8 @@ public class Autonomous extends LinearOpMode {
     private boolean driving(){
         return motorFL.isBusy() || motorFR.isBusy() || motorBL.isBusy() || motorBR.isBusy();
     }
-    
+
+    // Just copy and paste this
     private void initWebcam() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -193,7 +194,7 @@ public class Autonomous extends LinearOpMode {
         }
     }
 
-    private void liftTo(int goal){ //todo val:power
+    private void liftTo(int goal){
         lift.setTargetPosition(goal);
         if(goal > lift.getCurrentPosition()){
             lift.setPower(1);
@@ -205,6 +206,7 @@ public class Autonomous extends LinearOpMode {
     class Pipeline extends OpenCvPipeline {
         @Override
         public Mat processFrame(Mat input) {
+            // This function is run every frame; input is the pixels of the camera
             Imgproc.rectangle(input, new Point(0, 100), new Point(input.width(), input.height()-100), new Scalar(0, 255, 0), 4);
             double l = 0, m = 0, r = 0;
             for (int i = 0; i < input.width() / 3; i++) {
@@ -218,7 +220,7 @@ public class Autonomous extends LinearOpMode {
                 }
             }
             possibleDropOffHeight[1]=possibleDropOffHeight[0];
-            if (l > m && l > r) { //todo: make sure numbers corespond to barcode location
+            if (l > m && l > r) {
                 telemetry.addLine("Left");
                 possibleDropOffHeight[0]=2;
             }
@@ -237,7 +239,7 @@ public class Autonomous extends LinearOpMode {
         }
     }
     
-    private void run(){//TODO: make wheels stop spinning before next command
+    private void run(){
         //setup
         int sp = STARTING_POSITION();
         int sign;
@@ -245,80 +247,80 @@ public class Autonomous extends LinearOpMode {
         int[] mod;
 
         //lift in preparation to move
-        mod = new int[]{0,0,0,0}; //todo: val
-        liftTo(900 + mod[sp]); //todo: val //^ move over turn table wheel
+        mod = new int[]{0,0,0,0};
+        liftTo(900 + mod[sp]);
 
         //move next to the shipping hub
-        mod = new int[]{0,0,0,0}; //todo: val
-        drive(4400+mod[sp]); //todo: val
+        mod = new int[]{0,0,0,0};
+        drive(4400+mod[sp]); 
         while(driving());
 
         //rotate so back is facing shipping hub
-        mod = new int[]{0,0,0,0}; //todo: val
-        sign = (0==((sp^(sp>>1))&1) ? -1 : 1); //todo: sign
-        rotate(sign*(1900+mod[sp])); //todo: val
+        mod = new int[]{0,0,0,0};
+        sign = (0==((sp^(sp>>1))&1) ? -1 : 1);
+        rotate(sign*(1900+mod[sp]));
         while(driving());
 
         //back up to shipping hub
-        mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{0,-175, -350};//todo:val
-        drive(opt[dropOffHeight]+mod[sp]); //todo: val
+        mod = new int[]{0, 0, 0, 0};
+        opt=new int[]{0,-175, -350};
+        drive(opt[dropOffHeight]+mod[sp]);
         while(driving() || lift.isBusy());
 
         //move lift to correct height
-        dumpTo(.55); //todo: val
+        dumpTo(.55);
         sleep(1000);
-        mod = new int[]{0,0,0,0}; //todo: val
+        mod = new int[]{0,0,0,0};
         opt = new int[]{-50, 650, 1280};
-        liftTo(opt[dropOffHeight] + mod[sp]); //todo: val //^ move over turn table wheel
+        liftTo(opt[dropOffHeight] + mod[sp]);
         while (lift.isBusy());
 
         //dumping precedure
-        dumpTo(.85); //todo: val //tournament: was .75
+        dumpTo(.85);
         sleep(1500);
-        liftTo(550); //tournament: was 700
+        liftTo(550); 
         while(lift.getCurrentPosition()<350);
-        dumpTo(0.15); //todo: val
+        dumpTo(0.15);
 
         //undo back up to shipping hub
-        mod = new int[]{0, 0, 0, 0}; //todo: val
-        opt=new int[]{0,175,350};//todo:val
-        drive(opt[dropOffHeight]+mod[sp]); //todo: val
+        mod = new int[]{0, 0, 0, 0};
+        opt=new int[]{0,175,350};
+        drive(opt[dropOffHeight]+mod[sp]);
         while(driving());
 
         //rotate other way
-        mod = new int[]{0,0,0,0}; //todo: val
-        rotate(-sign*(1900+mod[sp])); //todo: val
+        mod = new int[]{0,0,0,0};
+        rotate(-sign*(1900+mod[sp]));
         while(driving());
 
         //back up to get in warehouse (towards drivers)
-        mod = new int[]{0,0,0,0}; //todo: val
-        drive(-2400+mod[sp]); //todo: val
+        mod = new int[]{0,0,0,0};
+        drive(-2400+mod[sp]);
         while(driving());
 
         //rotate to warehouse
-        mod = new int[]{0,0,0,0}; //todo: val
+        mod = new int[]{0,0,0,0};
         sign = (0==(sp&2) ? 1 : -1);
-        rotate(sign*(1900+mod[sp])); //todo: val
+        rotate(sign*(1900+mod[sp]));
 
         if (0==(sp&1)) {
             //drive close to warehouse
             while(driving());
-            mod = new int[]{0, 0, 0, 0}; //todo: val
+            mod = new int[]{0, 0, 0, 0};
             opt = new int[]{5440, 0};
-            drive(opt[sp % 2] + mod[sp]); //todo: val
+            drive(opt[sp % 2] + mod[sp]);
         }
         while (driving() || lift.isBusy());
 
         //rotate about 30deg to make it over
-        mod = new int[]{0, 0, 0, 0}; //todo: val
-        rotate(sign*(-630+mod[sp])); //todo: val
+        mod = new int[]{0, 0, 0, 0};
+        rotate(sign*(-630+mod[sp]));
         while(driving());
     }
 
-    private boolean finishingMove(boolean bool){ //todo: execution
-        double high=1.0;//todo val
-        double low=0.8;//todo val
+    private boolean finishingMove(boolean bool){
+        double high=1.0;
+        double low=0.8;
         double left;
         double right;
         if(bool){
